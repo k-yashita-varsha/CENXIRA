@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainee Dashboard - CENRIXA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #ff1493;
+            --dark-bg: #0a0e27;
+            --dark-card: #1a1f3a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top right, #1a0f2e, var(--dark-bg));
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .navbar {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 14, 39, 0.9);
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent), #ff00ff);
+            color: white;
+            cursor: pointer;
+        }
+
+        .container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            animation: scaleIn 0.5s forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .table-container {
+            background: rgba(26, 31, 58, 0.7);
+            border: 1px solid rgba(255, 0, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            text-align: left;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+            font-weight: 600;
+        }
+
+        tr {
+            transition: all 0.3s;
+            animation: fadeInUp 0.5s both;
+        }
+
+        tr:nth-child(odd) { animation-delay: 0.05s; }
+        tr:nth-child(even) { animation-delay: 0.1s; }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.08);
+            transform: scale(1.005) translateX(5px);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #86efac;
+        }
+
+        .status-submitted {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a5b4fc;
+        }
+
+        .status-approved {
+            background: rgba(16, 185, 129, 0.2);
+            color: #86efac;
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .priority-high {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .priority-medium {
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        .priority-low {
+            color: var(--success);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #86efac;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes modalScaleIn {
+            from { opacity: 0; transform: scale(0.8) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-content {
+            background: rgba(26, 31, 58, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalScaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: var(--text-primary);
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="logo">🎓 CENRIXA Trainee Dashboard</div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <h1>My Training Tasks</h1>
+
+        <div id="messageContainer"></div>
+
+        <!-- STATISTICS -->
+        <h2>My Progress</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="assignedTasks">-</div>
+                <div class="stat-label">Assigned Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">-</div>
+                <div class="stat-label">Completed Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">-</div>
+                <div class="stat-label">Pending Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">-</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+        </div>
+
+        <!-- ASSIGNED TASKS -->
+        <h2>📋 My Assigned Tasks</h2>
+        <div class="table-container">
+            <div class="table-title">Tasks assigned to you by your manager</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTable">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary);">Loading tasks...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SUBMISSIONS -->
+        <h2>📤 My Submissions</h2>
+        <div class="table-container">
+            <div class="table-title">Your submitted work and review status</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Submitted Date</th>
+                        <th>Review Status</th>
+                        <th>Manager Feedback</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="submissionsTable">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-secondary);">No submissions yet
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PROGRESS CHART -->
+        <h2>📊 Overall Completion Progress</h2>
+        <div class="table-container">
+            <div class="table-title">Your training completion status</div>
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Overall Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBMIT TASK MODAL -->
+    <div class="modal" id="submitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-upload"></i> Submit Task
+            </div>
+
+            <div class="form-group">
+                <label>Task Name</label>
+                <input type="text" id="submitTaskName" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Your Submission <span style="color: var(--danger);">*</span></label>
+                <textarea id="submitText" placeholder="Enter your work/answer/submission" rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Additional Notes (Optional)</label>
+                <textarea id="submitNotes" placeholder="Any additional comments or notes" rows="2"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" onclick="closeSubmitModal()"
+                    style="background: var(--text-secondary); color: black;">Cancel</button>
+                <button class="btn btn-primary" onclick="submitTask()">Submit Work</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW TASK MODAL -->
+    <div class="modal" id="viewTaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-eye"></i> Task Details
+            </div>
+
+            <div class="form-group">
+                <label>Task Name</label>
+                <input type="text" id="viewTaskName" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="viewTaskDescription" readonly rows="3"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <input type="text" id="viewTaskPriority" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="text" id="viewTaskDueDate" readonly>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" onclick="closeViewModal()"
+                    style="background: var(--text-secondary); color: black;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+        const TOKEN_KEY = 'cenrixa_token';
+        let currentToken = null;
+        let currentTaskId = null;
+
+        window.addEventListener('load', init);
+
+        async function init() {
+            const token = localStorage.getItem(TOKEN_KEY);
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+            currentToken = token;
+            loadDashboard();
+        }
+
+        async function loadDashboard() {
+            try {
+                loadTasks();
+                loadSubmissions();
+                loadProgress();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadTasks() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/tasks`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const tasks = data.tasks || [];
+
+                    let html = '';
+                    let assignedCount = 0;
+                    let completedCount = 0;
+                    let pendingCount = 0;
+
+                    if (tasks.length === 0) {
+                        html = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No assigned tasks</td></tr>';
+                    } else {
+                        tasks.forEach(task => {
+                            assignedCount++;
+                            if (task.status === 'COMPLETED') completedCount++;
+                            if (task.status === 'PENDING') pendingCount++;
+
+                            const priorityClass = task.priority === 'HIGH' ? 'priority-high' :
+                                task.priority === 'MEDIUM' ? 'priority-medium' : 'priority-low';
+
+                            html += `
+                                <tr>
+                                    <td><strong>${task.name}</strong></td>
+                                    <td>${task.description?.substring(0, 50)}...</td>
+                                    <td><span class="${priorityClass}">${task.priority}</span></td>
+                                    <td>${new Date(task.due_date).toLocaleDateString()}</td>
+                                    <td><span class="status-badge status-${task.status === 'COMPLETED' ? 'completed' : 'pending'}">${task.status}</span></td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="openViewModal('${task.id}', '${task.name}', '${task.description}', '${task.priority}', '${task.due_date}')">View</button>
+                                        <button class="btn btn-primary" onclick="openSubmitModal('${task.id}', '${task.name}')">Submit</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('tasksTable').innerHTML = html;
+                    document.getElementById('assignedTasks').textContent = assignedCount;
+                    document.getElementById('completedTasks').textContent = completedCount;
+                    document.getElementById('pendingTasks').textContent = pendingCount;
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                showError('Failed to load tasks');
+            }
+        }
+
+        async function loadSubmissions() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/submissions`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const submissions = data.submissions || [];
+
+                    let html = '';
+                    if (submissions.length === 0) {
+                        html = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No submissions yet</td></tr>';
+                    } else {
+                        submissions.forEach(submission => {
+                            const statusClass = submission.review_status === 'APPROVED' ? 'approved' :
+                                submission.review_status === 'REJECTED' ? 'rejected' : 'submitted';
+
+                            html += `
+                                <tr>
+                                    <td><strong>${submission.task_name}</strong></td>
+                                    <td>${new Date(submission.created_at).toLocaleDateString()}</td>
+                                    <td><span class="status-badge status-${statusClass}">${submission.review_status}</span></td>
+                                    <td>${submission.manager_feedback || '-'}</td>
+                                    <td>
+                                        ${submission.review_status === 'NEEDS_REVISION' ?
+                                    `<button class="btn btn-primary" onclick="openSubmitModal('${submission.task_id}', '${submission.task_name}')">Resubmit</button>` :
+                                    ''}
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    document.getElementById('submissionsTable').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+            }
+        }
+
+        async function loadProgress() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/progress`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const completion = data.progress?.completion_percentage || 0;
+
+                    document.getElementById('completionRate').textContent = Math.round(completion) + '%';
+                    document.getElementById('progressFill').style.width = completion + '%';
+                    document.getElementById('progressPercent').textContent = Math.round(completion) + '%';
+                }
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+
+        function openSubmitModal(taskId, taskName) {
+            currentTaskId = taskId;
+            document.getElementById('submitTaskName').value = taskName;
+            document.getElementById('submitText').value = '';
+            document.getElementById('submitNotes').value = '';
+            document.getElementById('submitModal').classList.add('active');
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submitModal').classList.remove('active');
+            currentTaskId = null;
+        }
+
+        async function submitTask() {
+            const submitText = document.getElementById('submitText').value;
+            const submitNotes = document.getElementById('submitNotes').value;
+
+            if (!submitText) {
+                showError('Please enter your submission');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task_id: currentTaskId,
+                        submission_text: submitText,
+                        notes: submitNotes
+                    })
+                });
+
+                if (res.ok) {
+                    showSuccess('Submission sent successfully! Waiting for manager review.');
+                    closeSubmitModal();
+                    loadSubmissions();
+                    loadTasks();
+                } else {
+                    const error = await res.json();
+                    showError(error.detail || 'Failed to submit task');
+                }
+            } catch (error) {
+                showError('Error submitting task: ' + error.message);
+            }
+        }
+
+        function openViewModal(taskId, taskName, taskDescription, taskPriority, taskDueDate) {
+            document.getElementById('viewTaskName').value = taskName;
+            document.getElementById('viewTaskDescription').value = taskDescription;
+            document.getElementById('viewTaskPriority').value = taskPriority;
+            document.getElementById('viewTaskDueDate').value = new Date(taskDueDate).toLocaleDateString();
+            document.getElementById('viewTaskModal').classList.add('active');
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewTaskModal').classList.remove('active');
+        }
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            window.location.href = '/';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="error"><i class="fas fa-exclamation-circle"></i> ${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="success"><i class="fas fa-check-circle"></i> ${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+
+</body>
+
+</html>
