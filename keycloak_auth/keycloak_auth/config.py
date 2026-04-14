@@ -152,6 +152,11 @@ class KeycloakConfig(BaseSettings):
         """Get token endpoint for admin client."""
         return f"{self.keycloak_admin_url}/realms/{self.keycloak_realm}/protocol/openid-connect/token"
 
+    @property
+    def dcr_registration_url(self) -> str:
+        """Get OIDC Dynamic Client Registration endpoint."""
+        return f"{self.oidc_issuer_url}/clients-registrations/openid-connect"
+
 
 def get_keycloak_config() -> KeycloakConfig:
     """Get singleton Keycloak configuration instance."""

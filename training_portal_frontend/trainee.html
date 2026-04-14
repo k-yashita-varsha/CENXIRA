@@ -529,6 +529,17 @@
         window.addEventListener('load', init);
 
         async function init() {
+            // 1. Try to get token from URL first (after login redirect)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            
+            if (urlToken) {
+                localStorage.setItem(TOKEN_KEY, urlToken);
+                // Clean the URL to hide the token for security
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 2. Check localStorage
             const token = localStorage.getItem(TOKEN_KEY);
             if (!token) {
                 window.location.href = '/';
@@ -556,7 +567,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const tasks = data.tasks || [];
+                    const tasks = data.data || [];
 
                     let html = '';
                     let assignedCount = 0;
@@ -609,7 +620,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const submissions = data.submissions || [];
+                    const submissions = data.data || [];
 
                     let html = '';
                     if (submissions.length === 0) {
@@ -649,7 +660,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const completion = data.progress?.completion_percentage || 0;
+                    const completion = data.data?.completion_percentage || 0;
 
                     document.getElementById('completionRate').textContent = Math.round(completion) + '%';
                     document.getElementById('progressFill').style.width = completion + '%';
@@ -683,7 +694,7 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/submissions`, {
+                const res = await fetch(`${API_BASE_URL}/api/v1/trainee/tasks/${currentTaskId}/submit`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${currentToken}`,

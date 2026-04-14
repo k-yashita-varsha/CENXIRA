@@ -41,7 +41,12 @@ from rbac_system.models import (
 )
 from rbac_system.engine import RBACEngine, PermissionChecker
 from rbac_system.repository import RBACRepository
-from rbac_system.fastapi_utils import require_permission, require_role
+from rbac_system.fastapi_utils import (
+    require_permission, 
+    require_role, 
+    set_role_provider, 
+    set_permission_checker
+)
 
 __all__ = [
     "RBACConfig",
@@ -54,4 +59,6 @@ __all__ = [
     "RBACRepository",
     "require_permission",
     "require_role",
+    "set_role_provider",
+    "set_permission_checker",
 ]

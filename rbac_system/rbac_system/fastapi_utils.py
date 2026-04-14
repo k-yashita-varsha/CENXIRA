@@ -116,19 +116,21 @@ def require_permission(resource: str, action: str):
     return dependency
 
 
+# Global Role Provider (optional backup check)
+_role_provider: Optional[Any] = None
+
+def set_role_provider(provider_func: Any) -> None:
+    """Set a backup role provider function (e.g. to check a local DB)."""
+    global _role_provider
+    _role_provider = provider_func
+
 def require_role(role_name: Union[str, List[str]]):
     """
     FastAPI dependency to check user has specific role(s).
-    
-    Accepts a single role name (str) or a list of role names (List[str]).
-    If a list is provided, the user must have AT LEAST ONE of the roles.
-    
-    Checks the role directly from Keycloak JWT token claims (realm_access.roles).
-    Returns the user object if successful.
+    Checks Token (Fast) and Provider/DB (Backup).
     """
     from keycloak_auth.fastapi_utils import get_current_user
     
-    # Normalize required roles to a list of lower-case strings for checking
     if isinstance(role_name, str):
         required_roles = [role_name.lower()]
         display_name = role_name
@@ -137,7 +139,7 @@ def require_role(role_name: Union[str, List[str]]):
         display_name = ", ".join(role_name)
     
     async def dependency(user: Optional[Any] = Depends(get_current_user)):
-        """Check role for authenticated user."""
+        """Check role for authenticated user (checks Token + Backup Provider)."""
         if not user:
             logger.warning(f"No user provided for role check: {display_name}")
             raise HTTPException(
@@ -146,23 +148,22 @@ def require_role(role_name: Union[str, List[str]]):
             )
 
         try:
-            # Check JWT token roles directly - fast and reliable
-            # Case-insensitive comparison
+            # 1. Fast path: Check JWT token roles
             user_roles_lower = [r.lower() for r in user.roles]
-            
-            # Check if any of the required roles are present
             has_role = any(r in user_roles_lower for r in required_roles)
 
+            # 2. Backup path: Dynamic Provider (e.g. check local Database)
+            if not has_role and _role_provider:
+                has_role = await _role_provider(user.user_id, required_roles)
+
             if not has_role:
-                logger.warning(f"User {user.user_id} missing required role from: {display_name}. User roles: {user.roles}")
+                logger.warning(f"User {user.user_id} missing role: {display_name}. Token roles: {user.roles}")
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"One of these roles is required: {display_name}. Your roles: {user.roles}",
+                    detail=f"Access Denied: {display_name} role required.",
                 )
 
-            logger.debug(f"User {user.user_id} has required role from: {display_name}")
             return user
-
         except HTTPException:
             raise
         except Exception as e:

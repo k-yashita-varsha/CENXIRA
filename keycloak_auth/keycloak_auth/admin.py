@@ -421,7 +421,6 @@ class KeycloakAdminClient:
         endpoint = f"{self.config.admin_users_url}/{user_id}"
         self._make_request("PUT", endpoint, json_data={"requiredActions": actions})
 
-
     def remove_identity_provider(self, idp_alias: str) -> None:
         """
         Delete an Identity Provider configuration from the realm.
@@ -434,14 +433,12 @@ class KeycloakAdminClient:
         except Exception as e:
             logger.warning(f"Failed to remove identity provider '{idp_alias}': {str(e)}")
 
-
     def list_identity_providers(self) -> list:
         """
         List all identity providers configured in the realm.
         """
         endpoint = f"{self.config.admin_url}/identity-provider/instances"
         return self._make_request("GET", endpoint) or []
-
 
     def update_identity_provider(self, idp_alias: str, idp_config: dict) -> None:
         """
@@ -450,3 +447,24 @@ class KeycloakAdminClient:
         logger.info(f"Force-updating identity provider: {idp_alias}")
         endpoint = f"{self.config.admin_url}/identity-provider/instances/{idp_alias}"
         self._make_request("PUT", endpoint, json_data=idp_config)
+
+    def create_initial_access_token(self, count: int = 1, lifespan: int = 3600) -> str:
+        """
+        Create an Initial Access Token for Dynamic Client Registration.
+        
+        Args:
+            count: Number of times this token can be used (default: 1)
+            lifespan: Token validity in seconds (default: 1 hour)
+            
+        Returns:
+            The initial access token string
+        """
+        logger.info(f"Creating Initial Access Token (count={count}, lifespan={lifespan})")
+        endpoint = f"{self.config.admin_url}/clients-registrations/initial-access"
+        response = self._make_request("POST", endpoint, json_data={
+            "count": count,
+            "lifespan": lifespan
+        })
+        token = response.get("token")
+        logger.info("Initial Access Token created successfully")
+        return token

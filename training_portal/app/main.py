@@ -9,10 +9,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import api_router
 from app.database import init_db, close_db
 from app.config import AppConfig
+from rbac_system import set_permission_checker, set_role_provider
+from rbac_system.repository import SQLAlchemyRBACRepository
+from rbac_system.engine import RBACEngine, PermissionChecker
+from rbac_system.fastapi_utils import set_permission_checker
+from app.database import sync_engine as db_sync_engine, AsyncSessionLocal, User
+from sqlalchemy.future import select
 
 logger = logging.getLogger(__name__)
 
 config = AppConfig()
+
+async def db_role_provider(keycloak_id: str, required_roles: list) -> bool:
+    """Backup role check against local DB."""
+    async with AsyncSessionLocal() as db:
+        stmt = select(User.assigned_role).where(User.keycloak_id == keycloak_id)
+        result = await db.execute(stmt)
+        role = result.scalar()
+        return role.lower() in required_roles if role else False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,16 +37,14 @@ async def lifespan(app: FastAPI):
     await init_db()
     
     # Initialize RBAC Permission Checker
-    from rbac_system.repository import SQLAlchemyRBACRepository
-    from rbac_system.engine import RBACEngine, PermissionChecker
-    from rbac_system.fastapi_utils import set_permission_checker
-    from app.database import sync_engine as db_sync_engine
-    
     repo = SQLAlchemyRBACRepository(db_sync_engine)
-    rbac_engine = RBACEngine(repo)
     checker = PermissionChecker(repo)
     set_permission_checker(checker)
-    logger.info("RBAC permission checker initialized")
+    
+    # Register the Backup Role Provider (Critical for Dashboards)
+    set_role_provider(db_role_provider)
+    
+    logger.info("RBAC permission checker and role provider initialized")
     
     yield
     

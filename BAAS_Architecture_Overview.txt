@@ -1,0 +1,57 @@
+================================================================================
+CENRIXA ECOSYSTEM: BACKEND-AS-A-SERVICE (BaaS) ARCHITECTURE OVERVIEW
+================================================================================
+
+1. WHAT IS BAAS IN THIS PROJECT?
+--------------------------------
+In this project, we are transforming the CENRIXA infrastructure into a "Backend-as-a-Service" model. Instead of building a login system for every single app, we have a central "Identity Engine" (Keycloak). 
+
+BaaS means:
+- IDENTITY AS A SERVICE: Keycloak handles all users, passwords, and security.
+- AUTHENTICATION AS A SERVICE: The `keycloak_auth` package provides the "glue" for any app to connect to Keycloak instantly.
+- AUTOMATION: New apps can "Register" themselves into this ecosystem without manual work from an IT team.
+
+2. THE ROLE OF DYNAMIC CLIENT REGISTRATION (DCR)
+------------------------------------------------
+DCR is the "Onboarding Agent" of the ecosystem. 
+- Traditionally, to add a new app, an admin must manually go into Keycloak and create a "Client".
+- With DCR, the "New App" simply sends a request to the CENRIXA infrastructure. 
+- The DCR service validates the request and automatically registers the app.
+- Result: The app is now "Trusted" and can use the central SSO system.
+
+3. THE DATABASE CONNECTION: HOW DO THEY TALK?
+---------------------------------------------
+A common question is: "If Keycloak has its own DB and the App has its own DB, how do they stay connected?"
+
+The answer is: THEY DON'T HAVE A PHYSICAL CONNECTION.
+There is no direct database-to-database link. This is safer and faster.
+
+THE LOGICAL LINK:
+The connection is managed by a shared "Foreign Key" called the Keycloak ID (sub).
+
+- KEYCLOAK DATABASE: 
+  Acts as the "Source of Truth" for your identity. 
+  It knows: `ID: u-789` belongs to `Email: user@cenrixa.com` with Password `****`.
+
+- APP DATABASE: 
+  Acts as the "Source of Truth" for your work.
+  It maintains a "Shadow Table" of users. It only knows:
+  `LocalID: 1` corresponds to `KeycloakID: u-789`.
+
+4. THE USER WORKFLOW (STEP-BY-STEP)
+-----------------------------------
+1. REGISTRATION: A New App registers via DCR and gets a Client ID.
+2. LOGIN: A user visits the New App and clicks "Login".
+3. HANDSHAKE: The browser goes to Keycloak. The user enters their OHR ID and Password.
+4. TOKEN: Keycloak gives the user a "Passport" (JWT Token) signed by CENRIXA.
+5. SYNC: The New App's Backend reads the "Passport," sees the Keycloak ID (`u-789`), and checks its local DB.
+6. DATA RETRIEVAL: When the user saves "Work," the App DB tags that work with the ID `u-789`.
+
+5. SUMMARY: INDEPENDENT BUT CONNECTED
+--------------------------------------
+- THEY ARE DIFFERENT: Because the App DB stores "Business Data" and the Keycloak DB stores "Identity Data." You can delete the App DB without losing the user's account, or you can update Keycloak without breaking the app's internal logic.
+- THEY ARE CONNECTED: Because the Keycloak ID acts as a "Social Security Number" that stays the same across every single app in the CENRIXA ecosystem.
+
+================================================================================
+CENRIXA PROJECT - 2026
+================================================================================

@@ -63,6 +63,7 @@ class TaskCreate(BaseModel):
     name: str
     description: Optional[str] = None
     priority: str = "MEDIUM"
+    assigned_to: Optional[UUID] = None
     due_date: Optional[datetime] = None
     is_recurring: bool = False
     recurrence_pattern: str = "ONCE"
@@ -91,6 +92,8 @@ class TaskResponse(BaseModel):
     priority: str
     created_at: datetime
     assigned_to: Optional[UUID] = None
+    assigned_to_name: Optional[str] = None
+    assigned_to_ohrid: Optional[str] = None
     due_date: Optional[datetime] = None
     is_recurring: bool
     recurrence_pattern: str
@@ -110,6 +113,7 @@ class TaskListResponse(BaseModel):
 class SubmissionCreate(BaseModel):
     """Create submission request."""
     task_id: UUID
+    submission_text: Optional[str] = None
     notes: Optional[str] = None
     file_references: List[str] = []
     links: List[str] = []
@@ -125,15 +129,20 @@ class SubmissionResponse(BaseModel):
     """Submission response."""
     id: UUID
     task_id: UUID
+    task_name: Optional[str] = None
     submitted_by: UUID
-    submitted_at: datetime
+    submitted_by_name: Optional[str] = None
+    submitted_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
     notes: Optional[str] = None
+    submission_text: Optional[str] = None
     file_references: List[str] = []
     links: List[str] = []
     review_status: str
     reviewed_by: Optional[UUID] = None
     reviewed_at: Optional[datetime] = None
     review_comments: Optional[str] = None
+    manager_feedback: Optional[str] = None
 
     class Config:
         from_attributes = True

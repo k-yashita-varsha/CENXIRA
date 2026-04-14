@@ -501,6 +501,17 @@
         window.addEventListener('load', init);
 
         async function init() {
+            // 1. Try to get token from URL first (after login redirect)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            
+            if (urlToken) {
+                localStorage.setItem(TOKEN_KEY, urlToken);
+                // Clean the URL to hide the token for security
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 2. Check localStorage
             const token = localStorage.getItem(TOKEN_KEY);
             if (!token) {
                 window.location.href = '/';

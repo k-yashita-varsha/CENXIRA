@@ -438,9 +438,9 @@
         </div>
 
         <!-- TASKS LIST -->
-        <h2>📋 My Tasks</h2>
+        <h2>📋 Team Tasks Tracking</h2>
         <div class="table-container">
-            <div class="table-title">Tasks assigned to team members</div>
+            <div class="table-title">Overview of all tasks assigned to your team members</div>
             <table>
                 <thead>
                     <tr>
@@ -559,6 +559,17 @@
         window.addEventListener('load', init);
 
         async function init() {
+            // 1. Try to get token from URL first (after login redirect)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            
+            if (urlToken) {
+                localStorage.setItem(TOKEN_KEY, urlToken);
+                // Clean the URL to hide the token for security
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // 2. Check localStorage
             const token = localStorage.getItem(TOKEN_KEY);
             if (!token) {
                 window.location.href = '/';
@@ -581,13 +592,13 @@
 
         async function loadTeamMembers() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/v1/manager/team`, {
+                const res = await fetch(`${API_BASE_URL}/api/v1/manager/trainees`, {
                     headers: { 'Authorization': `Bearer ${currentToken}` }
                 });
 
                 if (res.ok) {
                     const data = await res.json();
-                    const members = data.team_members || [];
+                    const members = data.data || [];
 
                     // Populate dropdown
                     let options = '<option value="">Select team member</option>';
@@ -628,7 +639,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const tasks = data.tasks || [];
+                    const tasks = data.data || [];
 
                     let html = '';
                     if (tasks.length === 0) {
@@ -668,7 +679,7 @@
 
                 if (res.ok) {
                     const data = await res.json();
-                    const submissions = data.submissions || [];
+                    const submissions = data.data || [];
 
                     let html = '';
                     let pendingCount = 0;
