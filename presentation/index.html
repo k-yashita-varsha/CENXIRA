@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENRIXA | Project Presentation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="presentation-wrapper">
+        <nav class="side-nav">
+            <div class="nav-dot active" data-slide="0"></div>
+            <div class="nav-dot" data-slide="1"></div>
+            <div class="nav-dot" data-slide="2"></div>
+            <div class="nav-dot" data-slide="3"></div>
+            <div class="nav-dot" data-slide="4"></div>
+            <div class="nav-dot" data-slide="5"></div>
+            <div class="nav-dot" data-slide="6"></div>
+        </nav>
+
+        <main class="slides-container">
+            <!-- Slide 1: Hero -->
+            <section class="slide hero-slide active" id="slide-0">
+                <div class="overlay"></div>
+                <div class="content">
+                    <h1 class="logo-text">CENRIXA</h1>
+                    <h2 class="subtitle">Unified Training Management Ecosystem</h2>
+                    <div class="line"></div>
+                    <p class="author">A State-of-the-Art BAAS Implementation</p>
+                    <button class="cta-start" onclick="nextSlide()">Explore Project</button>
+                </div>
+            </section>
+
+            <!-- Slide 2: The Core Vision -->
+            <section class="slide" id="slide-1">
+                <div class="content-grid">
+                    <div class="text-content">
+                        <h3>The Core Vision</h3>
+                        <p>Managing enterprise training workflows requires high security, granular permissions, and automated processes. CENRIXA solves this with a unified Backend-as-a-Service approach.</p>
+                        <ul class="feature-list">
+                            <li><span>Secure</span> Foundation</li>
+                            <li><span>Automated</span> Workflows</li>
+                            <li><span>Granular</span> Access</li>
+                        </ul>
+                    </div>
+                    <div class="image-content">
+                        <img src="assets/architecture.png" alt="Architecture Overview" class="float-image">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: The Security Backbone (Keycloak) -->
+            <section class="slide high-impact" id="slide-2">
+                <div class="bg-wrap">
+                    <img src="assets/security.png" alt="Security Background" class="bg-img">
+                </div>
+                <div class="glass-card">
+                    <div class="badge">SECURITY HUB</div>
+                    <h3>Keycloak Interoperability</h3>
+                    <p>Keycloak is the heart of CENRIXA's security. It's more than just a login; it's an enterprise-grade identity layer.</p>
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <span class="val">SSO</span>
+                            <span class="lab">Seamless Login</span>
+                        </div>
+                        <div class="stat">
+                            <span class="val">OIDC</span>
+                            <span class="lab">Modern Protocol</span>
+                        </div>
+                        <div class="stat">
+                            <span class="val">JWT</span>
+                            <span class="lab">Secure Handshakes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Why Keycloak Matters -->
+            <section class="slide" id="slide-3">
+                <div class="center-content">
+                    <h3>Keycloak’s Critical Role</h3>
+                    <div class="features-grid">
+                        <div class="feat-box">
+                            <div class="icon">🔒</div>
+                            <h4>Identity Management</h4>
+                            <p>Centralized user storage and lifecycle management without manual user-table scaling.</p>
+                        </div>
+                        <div class="feat-box">
+                            <div class="icon">🛡️</div>
+                            <h4>Decoupled Security</h4>
+                            <p>Business logic stays clean while Keycloak handles MFA, Social Login, and Passwords.</p>
+                        </div>
+                        <div class="feat-box">
+                            <div class="icon">🔗</div>
+                            <h4>Federation</h4>
+                            <p>Easily bridge existing LDAP or Microsoft AD services into the training portal.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Permission Engine (RBAC) -->
+            <section class="slide" id="slide-4">
+                <div class="content-grid-reverse">
+                    <div class="image-content">
+                        <div class="code-visual">
+                            <pre><code>
+@require_permission("training:access")
+async def get_portal_data():
+    return await service.fetch()
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="text-content">
+                        <h3>Governance & RBAC</h3>
+                        <p>Our custom RBAC system integrates directly with Keycloak roles to provide granular command-level authorization.</p>
+                        <p>Defined by policies, enforced by code.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Flow Automation (TaskFlow) -->
+            <section class="slide" id="slide-5">
+                <div class="center-content">
+                    <h3>Process Orchestration</h3>
+                    <p class="lead">The TaskFlow system automates the training lifecycle from onboarding to certification.</p>
+                    <div class="workflow-visual">
+                        <div class="step">Assign</div>
+                        <div class="arrow">→</div>
+                        <div class="step">Approve</div>
+                        <div class="arrow">→</div>
+                        <div class="step">Certify</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Conclusion -->
+            <section class="slide final-slide" id="slide-6">
+                <div class="content">
+                    <h3>Ready for Scale</h3>
+                    <p>CENRIXA is built for the future of enterprise training—secure, automated, and professional.</p>
+                    <div class="outro-links">
+                        <span class="badge-blue">Secure by Keycloak</span>
+                        <span class="badge-gold">Managed by RBAC</span>
+                    </div>
+                    <h1 class="thank-you">Thank You</h1>
+                </div>
+            </section>
+        </main>
+
+        <footer class="presentation-footer">
+            <span class="project-tag">CENRIXA</span>
+            <span class="slide-counter">1 / 7</span>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

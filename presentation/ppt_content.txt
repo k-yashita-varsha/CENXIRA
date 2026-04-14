@@ -1,0 +1,72 @@
+CENRIXA: PROJECT REVIEW DECK (OUTLINE)
+
+SLIDE 1: TITLE
+- Project Name: CENRIXA
+- Subtitle: Unified Enterprise Training Engine (Modular BAAS Architecture)
+- Purpose: Architectural Review for [Mentor Name]
+
+SLIDE 2: WHAT IS CENRIXA?
+- A Unified Backend-as-a-Service (BAAS) for Training Portals.
+- Centralizes Security, Roles, and Workflows into one API Hub.
+- Built as a modular ecosystem using three independent Python packages.
+- Purpose: Replacing fragmented, manual training with an automated dashboard.
+
+SLIDE 3: THE 3 CORE PACKAGES
+- keycloak_auth: The Identity & Security Engine.
+- rbac_system: The Governance & Permission Engine.
+- taskflow_system: The Process & Workflow Engine.
+- Benefit: Modular design allows each package to scale or be updated independently.
+
+SLIDE 4: KEYCLOAK_AUTH (THE IDENTITY BROKER)
+- Identity Federation: Bridges with external providers (Okta/Google).
+- Security: Zero-Knowledge architecture—no local password storage.
+- Standard: Built on the OpenID Connect (OIDC) protocol.
+- Protection: Uses RSA-signed JWT tokens for every API request.
+
+SLIDE 5: RBAC_SYSTEM (ACCESS CONTROL)
+- Granular Governance: Maps Keycloak roles to specific API permissions.
+- Hierarchical: Supports Admin, Manager, and Trainee Role Tiers.
+- Security: Every action is vetted by a permission-gate before execution.
+- Tracking: Logs every permission check for a full security audit trail.
+
+SLIDE 6: TASKFLOW_SYSTEM (PROCESS AUTOMATION)
+- The Engine: A Deterministic State Machine that manages the task lifecycle.
+- Stages: Creation -> Assignment -> Submission -> Review -> Done.
+- Integrity: Ensures work cannot be marked 'Complete' without formal review.
+- Utility: Reduces manual training administration by automating status flips.
+
+SLIDE 7: NEW USER ONBOARDING (THE FLOW)
+1. User Registration: User submits the sign-up form.
+2. SMTP Handshake: Keycloak sends an automated verification email.
+3. Identity Confirmation: User clicks the link to activate their profile.
+4. Automatic Access: System grants the 'Trainee' base-role instantly.
+
+SLIDE 8: EXISTING USER ACCESS
+- Multi-IdP Login: Users can login via Google, Okta, or Enterprise AD.
+- Fast Access: Redirects user to their dashboard in under 200ms.
+- Role Detection: System automatically detects the highest role and opens the correct UI.
+
+SLIDE 9: ADMIN DASHBOARD (SYSTEM CONSOLE)
+- Global Setup: Configuring roles and system-wide settings.
+- Security Audit: Reviewing logs for every login and permission check.
+- Infrastructure: Monitoring the entire user database and system health.
+
+SLIDE 10: MANAGER DASHBOARD (PROCESS CONSOLE)
+- Content Creation: Designing training modules and task lists.
+- Quality Review: Approving or rejecting trainee submissions.
+- Tracking: Real-time progress monitoring for all assigned trainees.
+
+SLIDE 11: TRAINEE DASHBOARD (LEARNING CONSOLE)
+- Active Tasks: Accessing current training modules.
+- Evidence Submission: Uploading work for review.
+- Certification: Tracking progress toward final completion badges.
+
+SLIDE 12: PROJECT UTILITY & SCALE
+- Scalability: Handles 10,000+ users via modular BAAS design.
+- Compliance: Follows industry-standard OIDC and RBAC security.
+- Automation: Replaces slow, manual human processes with a 24/7 engine.
+
+SLIDE 13: CONCLUSION
+- Summary: CENRIXA is a state-of-the-art solution for secure, scalable training.
+- Result: Professional, modular, and enterprise-ready architecture.
+- THANK YOU.

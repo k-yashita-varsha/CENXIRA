@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CENXIRA | Professional Architectural Review</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/black.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --r-main-font: 'Inter', sans-serif;
+            --r-heading-font: 'Outfit', sans-serif;
+            --deep-blue: #003366;
+            --accent-blue: #00ccff;
+            --box-bg: #ffffff;
+            --text-dark: #333333;
+            --accent-gold: #ff9900;
+        }
+
+        /* Mirrored professional background from screenshots */
+        .reveal {
+            background: linear-gradient(135deg, #001f3f 0%, #001122 100%);
+            overflow: hidden;
+        }
+        .reveal::after {
+            content: "";
+            position: absolute;
+            top: -20%; left: -20%;
+            width: 80%; height: 80%;
+            background: radial-gradient(circle, rgba(0,204,255,0.05) 0%, transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; text-align: left; }
+        .reveal .slides section { text-align: left; padding: 2rem; }
+
+        .slide-title { font-size: 2.22rem; color: white; font-weight: 800; border-bottom: 2.5px solid var(--accent-blue); display: inline-block; padding-bottom: 0.5rem; margin-bottom: 1.5rem !important; }
+
+        /* Architectural Offset Boxes */
+        .arch-container { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem; }
+        .arch-box { 
+            background: white; 
+            color: #333; 
+            padding: 1rem 1.6rem; 
+            border-radius: 4px; 
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.4);
+            border-left: 10px solid var(--accent-blue);
+        }
+        .arch-box h4 { margin: 0; font-size: 1.15rem; color: #003366; font-weight: 800; }
+        .arch-box p { margin: 4px 0 0 0; font-size: 0.85rem; color: #555; font-weight: 600; }
+        .arch-box:nth-child(2) { margin-left: 2.5rem; border-color: #0055aa; }
+        .arch-box:nth-child(3) { margin-left: 5.0rem; border-color: #555; }
+        .arch-box:nth-child(4) { margin-left: 7.5rem; border-color: var(--accent-gold); }
+        .arch-box:nth-child(5) { margin-left: 10.0rem; border-color: #33cc33; }
+
+        /* Technical Handshake Diagram */
+        .diag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; align-items: center; margin-top: 2rem; }
+        .diag-box { border: 1px solid var(--accent-blue); padding: 1.2rem; border-radius: 4px; background: rgba(0,204,255,0.05); text-align: center; color: white; font-size: 0.8rem; font-weight: 700; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .diag-arrow { text-align: center; color: var(--accent-blue); font-size: 1.5rem; }
+
+        /* Performance Card */
+        .perf-card { background: white; padding: 2.5rem; border-radius: 4px; box-shadow: 15px 15px 40px rgba(0,0,0,0.6); border-left: 10px solid var(--accent-blue); margin-top: 1rem; }
+        .perf-card h4 { font-size: 1.6rem; color: #003366; font-weight: 800; border-bottom: 2px solid #eee; padding-bottom: 0.8rem; margin-bottom: 1.2rem; }
+        .perf-card ul { list-style: none; padding: 0; margin: 0; color: #444; font-size: 1.0rem; }
+        .perf-card li { margin-bottom: 1rem; position: relative; padding-left: 1.8rem; line-height: 1.4; }
+        .perf-card li::before { content: "➤"; position: absolute; left: 0; color: #0055aa; }
+
+        /* Flow Indicators */
+        .flow-step { background: white; padding: 1.2rem; border-radius: 10px; display: flex; gap: 1.2rem; box-shadow: 5px 5px 15px rgba(0,0,0,0.3); border-left: 6px solid var(--accent-blue); margin-bottom: 1rem; width: 80%; }
+        .step-num { width: 45px; height: 45px; background: #003366; color: white; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800; }
+        .step-txt h4 { margin: 0; color: #003366; font-size: 1.1rem; }
+        .step-txt p { margin: 5px 0 0 0; font-size: 0.85rem; color: #666; }
+
+        .tech-badge { background: white; color: #003366; padding: 0.5rem 1.2rem; border-radius: 4px; font-weight: 700; font-size: 0.8rem; margin-right: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+
+        .controls { color: var(--accent-blue) !important; }
+        .progress { color: var(--accent-blue) !important; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- Slide 1: Intro -->
+            <section data-background-color="#001a33">
+                <div style="margin-top: 5rem;">
+                    <h1 style="font-size: 5rem; color: white; font-weight: 800; margin: 0;">CENRIXA</h1>
+                    <h3 style="color: #00ccff; font-weight: 400;">Task Management System</h3>
+                    <div style="margin-top: 8rem; display: flex; opacity: 0.9;">
+                        <span class="tech-badge">FastAPI</span>
+                        <span class="tech-badge">Keycloak</span>
+                        <span class="tech-badge">Okta</span>
+                        <span class="tech-badge">Google</span>
+                        <span class="tech-badge">PostgreSQL</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: Architectural Overview -->
+            <section>
+                <h2 class="slide-title">System Architecture Overview</h2>
+                <div class="arch-container">
+                    <div class="arch-box">
+                        <h4>User / Browser</h4>
+                        <p>Managed Swagger UI | Admin Portal Console | Redirect Handlers</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>Keycloak (Authorized Gatekeeper)</h4>
+                        <p>OIDC Realm Management | Identity Brokerage | Token Exchange Logic</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>Central API (FastAPI)</h4>
+                        <p>Core Logic Orchestration | Auth/RBAC Security Decorators | Dependency Injection</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>Custom Engines</h4>
+                        <p>keycloak_auth | rbac_system | taskflow_system</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>PostgreSQL Persistence</h4>
+                        <p>Identity Records | State History | Audit Traceability | Task Blobs</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: The Three Factors -->
+            <section>
+                <h2 class="slide-title">The Three Factors of CENRIXA</h2>
+                <div style="background: white; color: #333; padding: 2.5rem; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin-top: 1rem;">
+                    <h4 style="color: #003366; font-weight: 800; text-align: center; font-size: 1.5rem;">Unified Ecosystem Integration</h4>
+                    <p style="text-align: center; margin-top: 1rem; color: #666; font-size: 0.95rem;">The platform is architected around three critical pillars that form the complete governance engine.</p>
+                    <div style="display: flex; justify-content: space-around; margin-top: 3rem; text-align: center;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 2.5rem; color: #0055aa;">🔑</div>
+                            <h4 style="font-size: 1rem; color: #003366;">AUTHENTICATION</h4>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 2.5rem; color: #003366;">🛡️</div>
+                            <h4 style="font-size: 1rem; color: #003366;">AUTHORIZATION</h4>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 2.5rem; color: #00ccff;">⚙️</div>
+                            <h4 style="font-size: 1rem; color: #003366;">ORCHESTRATION</h4>
+                        </div>
+                    </div>
+                    <div style="margin-top: 3rem; text-align: center; border-top: 2px solid #eee; padding-top: 1.5rem;">
+                        <p style="font-weight: 700; color: #0055aa;">AUTHENTICATION + AUTHORIZATION + ORCHESTRATION = CENRIXA</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Pillar 1: Authentication -->
+            <section>
+                <h2 class="slide-title" style="border-color: #0055aa;">Factor 1: Authentication</h2>
+                <h3 style="color: #00ccff; font-weight: 400; font-size: 1.4rem;">keycloak_auth Package</h3>
+                <div class="perf-card">
+                    <h4>Identity Verification Engine</h4>
+                    <ul>
+                        <li><b>Protocol Compliance:</b> Full implementation of OpenID Connect (OIDC) and OAuth 2.0 standards.</li>
+                        <li><b>Security Validation:</b> Recursive verification of RSA-signed JWT tokens using live JWKS key sets.</li>
+                        <li><b>Stateless Design:</b> Enables horizontally scalable session management across distributed server nodes.</li>
+                        <li><b>Profile Extraction:</b> Seamless parsing of token claims into application-level credential models.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 5: The Auth Federator (Diagram) -->
+            <section>
+                <h2 class="slide-title">The Auth Federator Handshake</h2>
+                <p style="color: #888; font-size: 0.9rem;">Identity Brokerage between Providers and Platform</p>
+                <div class="diag-grid">
+                    <div class="diag-box" style="border-color: #ff9900;">Okta / Google (IDP)</div>
+                    <div class="diag-arrow">➔</div>
+                    <div class="diag-box" style="background: var(--accent-blue); color: black;">KEYCLOAK (Broker)</div>
+                    <div class="diag-arrow">➔</div>
+                    <div class="diag-box">CENRIXA (Backend)</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; margin-top: 3rem; color: #aaa; border-left: 5px solid #ff9900;">
+                    <p style="font-size: 0.85rem; line-height: 1.5;">Keycloak acts as a <b>Identity Broker</b>. It redirects the User to their preferred provider (Okta/Google), receives the signed identity response, and issues a CENRIXA-standard JWT for application use. This allows for unified SSO across disparate enterprise environments.</p>
+                </div>
+            </section>
+
+            <!-- Slide 6: Pillar 2: Authorization -->
+            <section>
+                <h2 class="slide-title" style="border-color: #003366;">Factor 2: Authorization</h2>
+                <h3 style="color: #00ccff; font-weight: 400; font-size: 1.4rem;">rbac_system Package</h3>
+                <div class="perf-card">
+                    <h4>Access Governance Matrix</h4>
+                    <ul>
+                        <li><b>Resource Logic:</b> Categorizes system functionalities as Resources (e.g., tasks, reports).</li>
+                        <li><b>Action Scoping:</b> Defines specific verbs (create, read, approve) per individual resource.</li>
+                        <li><b>Permission Mapping:</b> Atomic linking of roles to specific Resource:Action permissions.</li>
+                        <li><b>Defense In-Depth:</b> Every API request is guarded by an internal check_permission() logic trap.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 7: Profile: Admin -->
+            <section>
+                <h2 class="slide-title">Role Profile: Administrator</h2>
+                <div class="perf-card" style="border-color: #ff3300;">
+                    <h4>System-Level Governance</h4>
+                    <ul>
+                        <li>Manage global roles and system-wide permission mappings.</li>
+                        <li>Access infrastructure-wide audit logs and security trace history.</li>
+                        <li>User lifecycle oversight and administrative identity management.</li>
+                        <li>Configuration of global project parameters and resource definitions.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 8: Profile: Manager -->
+            <section>
+                <h2 class="slide-title">Role Profile: Manager</h2>
+                <div class="perf-card" style="border-color: #ff9900;">
+                    <h4>Operational Orchestration</h4>
+                    <ul>
+                        <li>Creation, assignment, and management of training task modules.</li>
+                        <li>Formal review and quality validation of Trainee evidence submissions.</li>
+                        <li>Performance monitoring and progress tracking of assigned user sets.</li>
+                        <li>Authority to trigger state-machine transitions (Review -> Approval).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 9: Profile: Trainee -->
+            <section>
+                <h2 class="slide-title">Role Profile: Trainee</h2>
+                <div class="perf-card" style="border-color: #33cc33;">
+                    <h4>Execution & Learning</h4>
+                    <ul>
+                        <li>Direct access to assigned task backlog and training materials.</li>
+                        <li>Upload and submission of progress evidence for quality review.</li>
+                        <li>Real-time visualization of personal certification milestones.</li>
+                        <li>Self-service progress tracking toward training completion.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 10: Pillar 3: Orchestration -->
+            <section>
+                <h2 class="slide-title" style="border-color: #00ccff;">Factor 3: Orchestration</h2>
+                <h3 style="color: #00ccff; font-weight: 400; font-size: 1.4rem;">taskflow_system Package</h3>
+                <div class="perf-card">
+                    <h4>Workflow Automation Engine</h4>
+                    <ul>
+                        <li><b>Deterministic Logic:</b> Enforces strict state transitions that cannot be bypassed manually.</li>
+                        <li><b>Event Auditing:</b> Automatically logs every status flip and actor identity for full history.</li>
+                        <li><b>Modular Design:</b> The workflow logic is independent of the business layer for clean scaling.</li>
+                        <li><b>Data Integrity:</b> Guarantees that no task enters 'Completed' status without formal verification.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 11: Workflow Mechanics -->
+            <section>
+                <h2 class="slide-title">The Task State Machine</h2>
+                <div style="display: flex; gap: 0.5rem; margin-top: 2rem;">
+                    <div style="flex:1; background: white; color: #333; padding: 1rem; border-radius: 4px; text-align: center; font-weight: 800; border-top: 5px solid #999;">BACKLOG</div>
+                    <div style="flex:1; background: white; color: #333; padding: 1rem; border-radius: 4px; text-align: center; font-weight: 800; border-top: 5px solid #0055aa;">IN_PROGRESS</div>
+                    <div style="flex:1; background: white; color: #333; padding: 1rem; border-radius: 4px; text-align: center; font-weight: 800; border-top: 5px solid #ff9900;">UNDER_REVIEW</div>
+                    <div style="flex:1; background: white; color: #333; padding: 1rem; border-radius: 4px; text-align: center; font-weight: 800; border-top: 5px solid #33cc33;">COMPLETED</div>
+                </div>
+                <div style="margin-top: 3rem; background: rgba(0,204,255,0.05); padding: 1.5rem; color: #aaa; font-size: 0.85rem; border-left: 5px solid var(--accent-blue);">
+                    <p>CENRIXA's orchestration layer ensures that every unit of work moves through a pre-defined quality funnel. The system prevents a task from moving directly from <b>In Progress</b> to <b>Completed</b>, mandating a formal <b>Review</b> action by a Manager-level authority.</p>
+                </div>
+            </section>
+
+            <!-- Slide 12: Onboarding Flow -->
+            <section>
+                <h2 class="slide-title">New Registration Lifecycle</h2>
+                <div style="margin-top: 1rem;">
+                    <div class="flow-step">
+                        <div class="step-num">1</div>
+                        <div class="step-txt"><h4>Self-Registration Handshake</h4><p>User submits identity details via the signup portal console.</p></div>
+                    </div>
+                    <div class="flow-step" style="border-color: #0055aa; margin-left: 2rem;">
+                        <div class="step-num" style="background: #0055aa;">2</div>
+                        <div class="step-txt"><h4>SMTP Activation Dispatch</h4><p>System triggers a time-sensitive, tokenized verification link to the inbox.</p></div>
+                    </div>
+                    <div class="flow-step" style="border-color: #ff9900; margin-left: 4rem;">
+                        <div class="step-num" style="background: #ff9900;">3</div>
+                        <div class="step-txt"><h4>Identity Confirmation</h4><p>Verification flips the Keycloak status to 'ACTIVE' and grants base roles.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 13: Technical Merits -->
+            <section>
+                <h2 class="slide-title">Strategic Value & Scale</h2>
+                <div style="display: flex; gap: 2rem; margin-top: 2rem;">
+                    <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 2rem; border-top: 4px solid var(--accent-blue);">
+                        <h4 style="color: white; font-size: 1.1rem;">Horizontal Scalability</h4>
+                        <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">The modular BAAS design allows handles 10,000+ concurrent users through decentralized JWT auth.</p>
+                    </div>
+                    <div style="flex: 1; background: rgba(255,255,255,0.03); padding: 2rem; border-top: 4px solid var(--accent-blue);">
+                        <h4 style="color: white; font-size: 1.1rem;">Zero-Trust Compliance</h4>
+                        <p style="font-size: 0.8rem; color: #888; margin-top: 0.5rem;">Identity Federation ensures full enterprise compliance without local security risk.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 14: Final -->
+            <section>
+                <h1 style="color: white; font-size: 4rem; font-weight: 800; border-left: 15px solid var(--accent-blue); padding-left: 2rem;">CENRIXA</h1>
+                <p style="color: #00ccff; font-weight: 400; margin-left: 2.2rem; font-size: 1.5rem;">Secure. Scalable. Unified.</p>
+                <h2 style="margin-top: 6rem; opacity: 0.1; letter-spacing: 20px; text-align: center;">THANK YOU</h2>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({ hash: true, controls: true, progress: true, center: false, transition: 'slide' });
+    </script>
+</body>
+</html>

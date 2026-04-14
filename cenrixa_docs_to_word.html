@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CENRIXA Documentation - Word Ready</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            margin: 40px;
+            color: #000;
+        }
+        h1 {
+            color: #2F5496;
+            font-size: 24pt;
+            border-bottom: 2px solid #2F5496;
+            margin-bottom: 20pt;
+        }
+        h2 {
+            color: #2F5496;
+            font-size: 18pt;
+            margin-top: 24pt;
+            border-bottom: 1px solid #ddd;
+        }
+        h3 {
+            color: #1F3864;
+            font-size: 14pt;
+            margin-top: 18pt;
+        }
+        p, li {
+            font-size: 11pt;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15pt 0;
+        }
+        th, td {
+            border: 1px solid #888;
+            padding: 8pt;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 10pt;
+            border: 1px solid #ccc;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin: 10pt 0;
+        }
+        .summary-box {
+            background-color: #E7F3FF;
+            border: 1px solid #2F5496;
+            padding: 15pt;
+            margin: 20pt 0;
+            font-style: italic;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 20pt 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CENRIXA - Full-stack Training Management System</h1>
+
+    <p>Welcome to the detailed documentation for <b>CENRIXA</b>, a robust, modular, and secure training management system designed for modern enterprise workflows. This document explains the architecture, the integration of independent packages, the role of Keycloak as an auth federator, and the core logic behind the project.</p>
+
+    <hr>
+
+    <h2>1. Project Overview & Objectives</h2>
+
+    <p><b>CENRIXA</b> is built to manage the end-to-end lifecycle of training programs. Its primary goal is to provide a seamless experience for:</p>
+    <ul>
+        <li><b>Administrators</b>: To manage users, roles, and global configurations.</li>
+        <li><b>Managers</b>: To assign tasks and review submissions from their teams.</li>
+        <li><b>Trainees</b>: To execute assigned tasks and track their learning progress.</li>
+    </ul>
+
+    <p>The system is designed with <b>security first</b>, utilizing multiple layers of authentication and authorization.</p>
+
+    <hr>
+
+    <h2>2. The Modular Architecture</h2>
+
+    <p>CENRIXA is not a monolithic application. It is a <b>combination of three independent Python packages</b> that work together under the orchestrator (FastAPI backend).</p>
+
+    <h3>2.1 The Three Core Packages</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Purpose</th>
+                <th>Responsibility</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>keycloak_auth</b></td>
+                <td><b>Authentication</b></td>
+                <td>Validates JWT tokens, caches public keys (JWKS), and handles token exchange with Keycloak.</td>
+            </tr>
+            <tr>
+                <td><b>rbac_system</b></td>
+                <td><b>Authorization</b></td>
+                <td>Manages dynamic roles and permissions (RBAC). It ensures that a "Manager" can only do what a manager is allowed to do.</td>
+            </tr>
+            <tr>
+                <td><b>taskflow_system</b></td>
+                <td><b>Business Workflow</b></td>
+                <td>Manages the lifecycle of tasks (In Progress, Under Review, Completed). It is the "brain" of the training process.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>2.2 Independence & Reusability</h3>
+    <p>Each package is developed as a standalone Python library (with its own setup.py or project.toml). They are "loosely coupled," meaning:</p>
+    <ul>
+        <li>rbac_system doesn't need to know keycloak_auth exists.</li>
+        <li>taskflow_system can be used in a different project entirely with zero changes.</li>
+        <li><b>The Combination</b>: The training_portal backend imports all three and stitches them together.</li>
+    </ul>
+
+    <hr>
+
+    <h2>3. Keycloak: The Auth Federator</h2>
+
+    <p>In this project, <b>Keycloak acts as a "Federator" or "Identity Broker."</b> This is a major architectural advantage.</p>
+
+    <h3>3.1 How it Works in CENRIXA</h3>
+    <p>Instead of users logging in directly with local credentials, Keycloak delegates authentication to professional providers like <b>Okta</b> or <b>Google</b>.</p>
+    <ol>
+        <li><b>Unified Entry Point</b>: Users always see the Keycloak login screen.</li>
+        <li><b>Federation</b>: Keycloak is "linked" to Okta/Google. When a user clicks "Login with Okta," Keycloak redirects the user to the Okta sign-in page.</li>
+        <li><b>Token Normalization</b>: Regardless of whether the user used Google or Okta, Keycloak returns a standardized <b>JWT (JSON Web Token)</b> to the CENRIXA backend. Our backend only needs to trust Keycloak!</li>
+    </ol>
+
+    <hr>
+
+    <h2>4. PostgreSQL Integration</h2>
+
+    <p>CENRIXA uses <b>PostgreSQL</b> as its enterprise-grade data store. There are two distinct integrations:</p>
+
+    <ol>
+        <li><b>Keycloak Backend Store (keycloak_db)</b>:
+            <ul>
+                <li>Keycloak itself requires a database to store realms, clients, users (federated), and sessions.</li>
+                <li>Integrated via conf/keycloak.conf using the JDBC URL: jdbc:postgresql://localhost:5432/keycloak_db.</li>
+            </ul>
+        </li>
+        <li><b>Application Store (training_portal)</b>:
+            <ul>
+                <li>The rbac_system and taskflow_system store their roles, permissions, tasks, and trainees here.</li>
+                <li>The backend uses sqlalchemy with asyncpg for high-performance database access.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <hr>
+
+    <h2>5. Logic Locations: Where the "Brains" Are</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Feature</th>
+                <th>Core Logic (The "Brain")</th>
+                <th>Dependency Layer</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Authentication</b></td>
+                <td>keycloak_auth/core.py: JWT validation, signature verification.</td>
+                <td>keycloak_auth/fastapi_utils.py: Middleware for FastAPI.</td>
+            </tr>
+            <tr>
+                <td><b>Access Control</b></td>
+                <td>rbac_system/engine.py: Rules for who can see what.</td>
+                <td>rbac_system/repository.py: CRUD for roles/perms.</td>
+            </tr>
+            <tr>
+                <td><b>Task Workflow</b></td>
+                <td>taskflow_system/service.py: State transitions (e.g., Backlog -> Success).</td>
+                <td>taskflow_system/repository.py: CRUD for tasks/submissions.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>6. Registration & The 3 Dashboards</h2>
+
+    <h3>6.1 Registration & Sync Flow</h3>
+    <p>CENRIXA uses a "Secure Registration" flow:</p>
+    <ol>
+        <li><b>First Login</b>: When a user logs in via Okta/Google for the first time, Keycloak informs our backend.</li>
+        <li><b>Local Sync</b>: The backend creates a record in our local User table.</li>
+        <li><b>Status Check</b>: Default new users are PENDING; Admin approval is required.</li>
+    </ol>
+
+    <h3>6.2 The Three Dashboards</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Dashboard</th>
+                <th>Main Logic Location</th>
+                <th>Key Capability</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Admin</b></td>
+                <td>api/admin.py</td>
+                <td>User approval, Role assignment, System health.</td>
+            </tr>
+            <tr>
+                <td><b>Manager</b></td>
+                <td>api/manager.py</td>
+                <td>Create training tasks, Review trainee work.</td>
+            </tr>
+            <tr>
+                <td><b>Trainee</b></td>
+                <td>api/trainee.py</td>
+                <td>Execute tasks, Submit work for review.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>7. The Work Submission Form (The "Work" Form)</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>Submission Text</b></td>
+                <td>Long Text</td>
+                <td>The primary body of work, answer, or documentation.</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td><b>Additional Notes</b></td>
+                <td>Long Text</td>
+                <td>Contextual information for the manager.</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td><b>Links</b></td>
+                <td>List (URL)</td>
+                <td>External links to projects or resources.</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="summary-box">
+        <b>Summary for Mentor Review:</b><br>
+        CENRIXA is a state-of-the-art training system built on Micro-packages. It leverages Keycloak for complex federated auth while keeping core business logic encapsulated in independent modules. This ensures the system is scalable, maintainable, and extremely secure.
+    </div>
+
+</body>
+</html>
