@@ -34,6 +34,19 @@ async def exchange_token(
         validator = TokenValidator(get_keycloak_config())
         claims = validator.validate_token(tokens["access_token"])
         
+        # Validation: Is this a corporate email?
+        email = claims.email or ""
+        allowed_domains = get_keycloak_config().allowed_org_domains
+        is_corp_domain = any(email.lower().endswith(f"@{domain}") for domain in allowed_domains)
+        is_auto_approve_domain = email.lower().endswith("@cenrixa.local")
+
+        if not is_corp_domain:
+            logger.warning(f"Rejected login attempt from non-corporate domain: {email}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Corporate access only. Login for {email} is restricted to organization accounts."
+            )
+
         # Robust Sync: Check by keycloak_id OR email OR username 
         from sqlalchemy import or_
         stmt = select(User).where(
@@ -46,9 +59,20 @@ async def exchange_token(
         result = await db.execute(stmt)
         db_user = result.scalars().first()
         
-        # If user has 'Admin' or 'Portal Admin' role in Keycloak, they should be ACTIVE automatically
+        # Determine status and role
+        # 1. Admin roles from Keycloak always win
+        # 2. @cenrixa.local users get auto-approved as Trainees
         is_admin = any(r.lower() in ["admin", "portal admin"] for r in claims.roles)
-        initial_status = "ACTIVE" if is_admin else "PENDING"
+        
+        if is_admin:
+            initial_status = "ACTIVE"
+            initial_role = "Admin"
+        elif is_auto_approve_domain:
+            initial_status = "ACTIVE"
+            initial_role = "Trainee"
+        else:
+            initial_status = "PENDING"
+            initial_role = None
         
         if not db_user:
             logger.info(f"Creating new user in local DB: {claims.preferred_username}")
@@ -59,7 +83,7 @@ async def exchange_token(
                 first_name=claims.given_name,
                 last_name=claims.family_name,
                 status=initial_status,
-                assigned_role="Admin" if is_admin else None,
+                assigned_role=initial_role,
                 is_enabled=True
             )
             db.add(db_user)
@@ -71,9 +95,14 @@ async def exchange_token(
             db_user.username = claims.preferred_username
             db_user.first_name = claims.given_name
             db_user.last_name = claims.family_name
+            
+            # Update status/role if they are now Admin or Org-Auto-Approved
             if is_admin:
                 db_user.status = "ACTIVE"
                 db_user.assigned_role = "Admin"
+            elif is_auto_approve_domain and db_user.status != "ACTIVE":
+                db_user.status = "ACTIVE"
+                db_user.assigned_role = db_user.assigned_role or "Trainee"
                 
         await db.commit()
         
@@ -81,6 +110,9 @@ async def exchange_token(
             message="Token exchange and sync successful",
             data=tokens
         )
+    except HTTPException:
+        # Re-raise HTTPExceptions as-is (essential for 403 Forbidden)
+        raise
     except Exception as e:
         logger.error(f"Exchange/Sync failed: {str(e)}")
         raise HTTPException(

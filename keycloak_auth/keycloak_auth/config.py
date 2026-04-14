@@ -6,8 +6,8 @@ Supports OIDC, Admin API, and caching settings.
 """
 
 import os
-from typing import Optional
-from pydantic import Field, ConfigDict
+from typing import Optional, List, Any
+from pydantic import Field, ConfigDict, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -90,6 +90,20 @@ class KeycloakConfig(BaseSettings):
         default="realm_access.roles",
         description="JWT claim path to extract roles from (e.g., 'realm_access.roles')"
     )
+
+    # ==================== Enterprise Settings ====================
+    allowed_org_domains: Any = Field(
+        default=["cenrixa.com", "cenrixa.local"],
+        description="List of organizational domains allowed to login."
+    )
+
+    @field_validator("allowed_org_domains", mode="before")
+    @classmethod
+    def split_domains(cls, v):
+        """Allow comma-separated string from env to be parsed as list."""
+        if isinstance(v, str):
+            return [d.strip().lower() for d in v.split(",") if d.strip()]
+        return v
 
     # ==================== Validation Settings ====================
     verify_signature: bool = Field(
