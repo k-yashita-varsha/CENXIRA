@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 3rem;">
+    <h1>Welcome to Resource Hub</h1>
+    <p class="subtitle">Manage meetings, book rooms, and track helpdesk requests.</p>
+</div>
+
+<div class="grid-2">
+    <div class="glass-panel">
+        <h2>Upcoming Meetings</h2>
+        {% if not meetings %}
+            <p class="subtitle">No upcoming meetings.</p>
+        {% else %}
+            {% for m in meetings %}
+            <div class="card" style="margin-bottom: 1rem;">
+                <h3 style="margin-bottom: 0.5rem;">{{ m.title }}</h3>
+                <p style="color: var(--text-muted);">{{ m.datetime }}</p>
+                {% if m.room_name %}
+                <span class="badge" style="margin-top: 0.5rem;">{{ m.room_name }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% endif %}
+        <a href="/schedule" class="btn" style="margin-top: 1rem; display: block;">Schedule New</a>
+    </div>
+
+    <div class="glass-panel">
+        <h2>Recent Tickets</h2>
+        {% if not tickets %}
+            <p class="subtitle">No open tickets.</p>
+        {% else %}
+            {% for t in tickets %}
+            <div class="card" style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3 style="margin-bottom: 0;">{{ t.title }}</h3>
+                    <span class="badge" style="background: {% if t.status == 'Open' %}rgba(239, 68, 68, 0.2){% else %}rgba(34, 197, 94, 0.2){% endif %}; color: {% if t.status == 'Open' %}#fca5a5{% else %}#86efac{% endif %}">
+                        {{ t.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        <a href="/helpdesk" class="btn" style="margin-top: 1rem; display: block;">Open Helpdesk</a>
+    </div>
+</div>
+{% endblock %}

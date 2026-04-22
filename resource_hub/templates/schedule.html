@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+    <h1>Schedule Meeting</h1>
+    <p class="subtitle">Set up a 1-on-1 meeting with another user.</p>
+
+    <form action="/api/meetings" method="POST">
+        <div class="form-group">
+            <label for="title">Meeting Title</label>
+            <input type="text" id="title" name="title" required placeholder="e.g. Project Sync">
+        </div>
+
+        <div class="form-group">
+            <label for="host_id">Host (You)</label>
+            <select id="host_id" name="host_id" required>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="guest_id">Guest</label>
+            <select id="guest_id" name="guest_id" required>
+                <option value="">Select a user...</option>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="room_id">Room (Optional)</label>
+            <select id="room_id" name="room_id">
+                <option value="">No Room Needed</option>
+                {% for r in rooms %}
+                <option value="{{ r.id }}">{{ r.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="datetime">Date & Time</label>
+            <input type="datetime-local" id="datetime" name="datetime" required>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%;">Schedule Meeting</button>
+    </form>
+</div>
+{% endblock %}

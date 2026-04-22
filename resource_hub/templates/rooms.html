@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 3rem;">
+    <h1>Meeting Rooms</h1>
+    <p class="subtitle">View and book available presentation halls and meeting spaces.</p>
+</div>
+
+<div class="grid-2">
+    {% for room in rooms %}
+    <div class="glass-panel" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>{{ room.name }}</h2>
+            <span class="badge">Capacity: {{ room.capacity }}</span>
+        </div>
+        <p style="color: var(--text-muted);">Premium meeting space equipped with projectors and conferencing tools.</p>
+        <a href="/schedule?room={{ room.id }}" class="btn" style="text-align: center; margin-top: auto;">
+            Book Room
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
