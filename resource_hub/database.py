@@ -10,8 +10,10 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ohrid TEXT UNIQUE NOT NULL,
         name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL
+        email TEXT NOT NULL,
+        role TEXT NOT NULL
     )
     ''')
 
@@ -44,20 +46,20 @@ def init_db():
         description TEXT NOT NULL,
         status TEXT DEFAULT 'Open',
         creator_id INTEGER,
-        FOREIGN KEY(creator_id) REFERENCES users(id)
+        assigned_to INTEGER,
+        FOREIGN KEY(creator_id) REFERENCES users(id),
+        FOREIGN KEY(assigned_to) REFERENCES users(id)
     )
     ''')
 
-    # Seed data
-    cursor.execute('SELECT COUNT(*) FROM users')
+    # Seed rooms (these remain static for the demo)
+    cursor.execute('SELECT COUNT(*) FROM rooms')
     if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO users (name, email) VALUES ('Admin Manager', 'admin@cenrixa.com')")
-        cursor.execute("INSERT INTO users (name, email) VALUES ('Trainee One', 'trainee1@cenrixa.com')")
-        cursor.execute("INSERT INTO users (name, email) VALUES ('Trainee Two', 'trainee2@cenrixa.com')")
-
         cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Alpha Room', 10)")
         cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Beta Room', 5)")
         cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Gamma Presentation Hall', 50)")
+
+    # NOTE: Users are no longer seeded. They will be added dynamically when they log in via DCR/SSO.
 
     conn.commit()
     conn.close()

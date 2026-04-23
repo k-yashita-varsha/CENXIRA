@@ -17,12 +17,8 @@
         </div>
 
         <div class="form-group">
-            <label for="creator_id">Requester (You)</label>
-            <select id="creator_id" name="creator_id" required>
-                {% for u in users %}
-                <option value="{{ u.id }}">{{ u.name }}</option>
-                {% endfor %}
-            </select>
+            <label>Requester (You)</label>
+            <input type="text" value="{{ user.name }}" disabled style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted); cursor: not-allowed;">
         </div>
 
         <button type="submit" class="btn" style="width: 100%;">Submit Ticket</button>

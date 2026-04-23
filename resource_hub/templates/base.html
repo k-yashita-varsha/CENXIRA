@@ -11,9 +11,15 @@
         <a href="/" class="brand">Cenrixa Hub</a>
         <div class="nav-links">
             <a href="/" class="nav-link">Dashboard</a>
+            {% if user %}
             <a href="/schedule" class="nav-link">Schedule Meeting</a>
             <a href="/rooms" class="nav-link">Book Room</a>
             <a href="/helpdesk" class="nav-link">Helpdesk</a>
+            <a href="/logout" class="btn" style="padding: 0.5rem 1rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5;">Logout ({{ user.name }})</a>
+            {% else %}
+            <a href="/rooms" class="nav-link">Rooms</a>
+            <a href="/login" class="btn" style="padding: 0.5rem 1rem;">Login via CENRIXA</a>
+            {% endif %}
         </div>
     </nav>
     

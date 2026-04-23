@@ -2,13 +2,25 @@
 
 {% block content %}
 <div style="text-align: center; margin-bottom: 3rem;">
-    <h1>Welcome to Resource Hub</h1>
-    <p class="subtitle">Manage meetings, book rooms, and track helpdesk requests.</p>
+    {% if user %}
+        <h1>Welcome, {{ user.name }}</h1>
+        <p class="subtitle">
+            {% if user.role == 'Admin' %}
+            Admin Dashboard: Manage all tickets and company meetings.
+            {% else %}
+            Manage your meetings and track your helpdesk requests.
+            {% endif %}
+        </p>
+    {% else %}
+        <h1>Welcome to Resource Hub</h1>
+        <p class="subtitle">Please login via CENRIXA to manage your resources.</p>
+    {% endif %}
 </div>
 
+{% if user %}
 <div class="grid-2">
     <div class="glass-panel">
-        <h2>Upcoming Meetings</h2>
+        <h2>{% if user.role == 'Admin' %}Upcoming Company Meetings{% else %}Your Upcoming Meetings{% endif %}</h2>
         {% if not meetings %}
             <p class="subtitle">No upcoming meetings.</p>
         {% else %}
@@ -26,7 +38,7 @@
     </div>
 
     <div class="glass-panel">
-        <h2>Recent Tickets</h2>
+        <h2>{% if user.role == 'Admin' %}All Open Support Tickets{% else %}Your Open Tickets{% endif %}</h2>
         {% if not tickets %}
             <p class="subtitle">No open tickets.</p>
         {% else %}
@@ -41,7 +53,10 @@
             </div>
             {% endfor %}
         {% endif %}
-        <a href="/helpdesk" class="btn" style="margin-top: 1rem; display: block;">Open Helpdesk</a>
+        {% if user.role != 'Admin' %}
+        <a href="/helpdesk" class="btn" style="margin-top: 1rem; display: block;">Open Helpdesk Ticket</a>
+        {% endif %}
     </div>
 </div>
+{% endif %}
 {% endblock %}
