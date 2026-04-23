@@ -269,6 +269,13 @@
             color: #86efac;
         }
 
+        .status-late {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ff4d4d;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            font-weight: bold;
+        }
+
         .priority-high {
             color: var(--danger);
             font-weight: bold;
@@ -503,6 +510,34 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- DCR APP APPROVALS -->
+        <h2>🔌 App Approvals (DCR)</h2>
+        <div class="table-container">
+            <div class="table-title">External apps requesting access to CENRIXA</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>App Name</th>
+                        <th>Base URL</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appsTable">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary);">Loading apps...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- EXTERNAL APPS (Features) -->
+        <h2>🚀 Active External Apps</h2>
+        <div id="externalAppsContainer">
+            <p style="color: var(--text-secondary);">Loading approved apps...</p>
+        </div>
+
     </div>
 
     <!-- REVIEW SUBMISSION MODAL -->
@@ -550,11 +585,54 @@
         </div>
     </div>
 
+    <!-- EDIT TASK MODAL -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-edit"></i> Edit Task
+            </div>
+
+            <div class="form-group">
+                <label>Task Name <span style="color: var(--danger);">*</span></label>
+                <input type="text" id="editTaskName">
+            </div>
+
+            <div class="form-group">
+                <label>Description <span style="color: var(--danger);">*</span></label>
+                <textarea id="editTaskDescription" rows="3"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Priority <span style="color: var(--danger);">*</span></label>
+                    <select id="editTaskPriority">
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Due Date <span style="color: var(--danger);">*</span></label>
+                    <input type="date" id="editTaskDueDate">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn" onclick="closeEditModal()"
+                    style="background: var(--text-secondary); color: black;">Cancel</button>
+                <button class="btn btn-primary" onclick="updateTask()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE_URL = 'http://localhost:8000';
         const TOKEN_KEY = 'cenrixa_token';
         let currentToken = null;
         let currentSubmissionId = null;
+        let currentEditingTaskId = null;
+        let allTasks = []; // Store tasks locally to populate edit modal
 
         window.addEventListener('load', init);
 
@@ -585,8 +663,93 @@
                 loadTasks();
                 loadSubmissions();
                 loadTeamStats();
+                loadPendingApps();
+                loadFeatureApps();
             } catch (error) {
                 console.error('Error loading dashboard:', error);
+            }
+        }
+
+        async function loadPendingApps() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/apps/`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (res.ok) {
+                    const apps = await res.json();
+                    let html = '';
+                    if (apps.length === 0) {
+                        html = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No app registration requests</td></tr>';
+                    } else {
+                        apps.forEach(app => {
+                            const badgeClass = app.status === 'APPROVED' ? 'status-completed' : 'status-pending';
+                            html += `
+                                <tr>
+                                    <td><strong>${app.name}</strong></td>
+                                    <td>${app.base_url}</td>
+                                    <td><span class="status-badge ${badgeClass}">${app.status}</span></td>
+                                    <td>
+                                        ${app.status === 'PENDING'
+                                            ? `<button class="btn btn-success" onclick="approveApp('${app.id}')">✅ Approve</button>`
+                                            : '<span style="color: var(--success);">Approved ✓</span>'}
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    document.getElementById('appsTable').innerHTML = html;
+                }
+            } catch (err) {
+                console.error('Could not load apps:', err);
+            }
+        }
+
+        async function approveApp(appId) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/apps/${appId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                if (res.ok) {
+                    showSuccess('App approved! It will now appear in the External Apps section for all users.');
+                    loadPendingApps();
+                    loadFeatureApps();
+                } else {
+                    const err = await res.json();
+                    showError(err.detail || 'Failed to approve app');
+                }
+            } catch (err) {
+                showError('Error approving app: ' + err.message);
+            }
+        }
+
+        async function loadFeatureApps() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/apps/features`);
+                if (res.ok) {
+                    const apps = await res.json();
+                    const container = document.getElementById('externalAppsContainer');
+                    if (apps.length === 0) {
+                        container.innerHTML = '<p style="color: var(--text-secondary);">No approved apps yet. Approve a request above.</p>';
+                        return;
+                    }
+                    let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">';
+                    apps.forEach(app => {
+                        html += `
+                            <a href="${app.base_url}" target="_blank" style="text-decoration: none;">
+                                <div class="stat-card" style="cursor: pointer; text-align: left;">
+                                    <div style="font-size: 2rem; margin-bottom: 8px;">🔗</div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">${app.name}</div>
+                                    <div style="font-size: 0.8rem; color: var(--success); margin-top: 4px;">● Active</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch (err) {
+                console.error('Could not load feature apps:', err);
             }
         }
 
@@ -640,6 +803,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     const tasks = data.data || [];
+                    allTasks = tasks; // Save globally
 
                     let html = '';
                     if (tasks.length === 0) {
@@ -648,12 +812,17 @@
                         tasks.forEach(task => {
                             const priorityClass = task.priority === 'HIGH' ? 'priority-high' :
                                 task.priority === 'MEDIUM' ? 'priority-medium' : 'priority-low';
+                            const isLate = new Date(task.due_date) < new Date() && task.status !== 'COMPLETED';
+                            const statusBadge = isLate ? 
+                                `<span class="status-badge status-late">LATE</span>` : 
+                                `<span class="status-badge status-${task.status === 'COMPLETED' ? 'completed' : 'pending'}">${task.status}</span>`;
+                            
                             html += `
                                 <tr>
                                     <td>${task.name}</td>
                                     <td>${task.assigned_to_name || '-'}</td>
                                     <td><span class="${priorityClass}">${task.priority}</span></td>
-                                    <td><span class="status-badge status-${task.status === 'COMPLETED' ? 'completed' : 'pending'}">${task.status}</span></td>
+                                    <td>${statusBadge}</td>
                                     <td>${new Date(task.due_date).toLocaleDateString()}</td>
                                     <td>
                                         <button class="btn btn-primary" onclick="editTask('${task.id}')">Edit</button>
@@ -796,8 +965,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        status: status,
-                        feedback: feedback
+                        review_status: status,
+                        review_comments: feedback
                     })
                 });
 
@@ -815,12 +984,88 @@
         }
 
         function editTask(taskId) {
-            alert('Task editing feature coming soon');
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            currentEditingTaskId = taskId;
+            document.getElementById('editTaskName').value = task.name;
+            document.getElementById('editTaskDescription').value = task.description || '';
+            document.getElementById('editTaskPriority').value = task.priority;
+            
+            if (task.due_date) {
+                const date = new Date(task.due_date);
+                document.getElementById('editTaskDueDate').value = date.toISOString().split('T')[0];
+            }
+
+            document.getElementById('editModal').classList.add('active');
         }
 
-        function deleteTask(taskId) {
-            if (!confirm('Are you sure you want to delete this task?')) return;
-            alert('Task deletion coming soon');
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditingTaskId = null;
+        }
+
+        async function updateTask() {
+            const name = document.getElementById('editTaskName').value;
+            const description = document.getElementById('editTaskDescription').value;
+            const priority = document.getElementById('editTaskPriority').value;
+            const dueDate = document.getElementById('editTaskDueDate').value;
+
+            if (!name || !description || !priority || !dueDate) {
+                showError('Please fill all fields');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/manager/tasks/${currentEditingTaskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        priority: priority,
+                        due_date: dueDate
+                    })
+                });
+
+                if (res.ok) {
+                    showSuccess('Task updated successfully!');
+                    closeEditModal();
+                    loadTasks();
+                } else {
+                    const error = await res.json();
+                    showError(error.detail || 'Failed to update task');
+                }
+            } catch (error) {
+                showError('Error updating task: ' + error.message);
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Are you sure you want to delete this task? This will also delete all associated submissions.')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/manager/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                if (res.ok) {
+                    showSuccess('Task deleted successfully!');
+                    loadTasks();
+                    loadSubmissions(); // Submissions might have been deleted too
+                } else {
+                    const error = await res.json();
+                    showError(error.detail || 'Failed to delete task');
+                }
+            } catch (error) {
+                showError('Error deleting task: ' + error.message);
+            }
         }
 
         function logout() {

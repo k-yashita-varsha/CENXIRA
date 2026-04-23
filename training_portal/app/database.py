@@ -6,7 +6,7 @@ SQLAlchemy ORM models for all 8 entities:
 - Task, Submission, AuditLog
 """
 
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, JSON, ForeignKey, Table, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Boolean, DateTime, Text, JSON, ForeignKey, Table, UniqueConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
@@ -196,6 +196,7 @@ class Submission(Base, TimestampMixin):
     submitted_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     submitted_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     notes = Column(Text, nullable=True)
+    submission_text = Column(Text, nullable=True)
     file_references = Column(JSONB, default=[], nullable=False)
     links = Column(JSONB, default=[], nullable=False)
     review_status = Column(String(50), default="PENDING", nullable=False)
@@ -235,6 +236,25 @@ class AuditLog(Base, TimestampMixin):
     def __repr__(self) -> str:
         return f"<AuditLog {self.action} on {self.entity_type}>"
 
+
+# ==================== DCR APP REGISTRATION ====================
+
+class RegisteredApp(Base, TimestampMixin):
+    """
+    Registered external applications (DCR).
+    """
+    __tablename__ = "registered_apps"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(255), unique=True, nullable=False, index=True)
+    redirect_uris = Column(JSONB, default=[], nullable=False)
+    base_url = Column(String(255), nullable=False)
+    status = Column(String(50), default="PENDING", nullable=False)
+    client_id = Column(String(255), nullable=True)
+    client_secret = Column(String(255), nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<RegisteredApp {self.name}>"
 
 # ==================== DATABASE SETUP ====================
 
@@ -279,9 +299,15 @@ async def get_db():
 
 
 async def init_db():
-    """Initialize database (create tables)."""
+    """Initialize database (create tables and run small migrations)."""
     async with engine.begin() as conn:
+        # 1. Create tables if they don't exist
         await conn.run_sync(Base.metadata.create_all)
+        
+        # 2. Add missing columns (IF NOT EXISTS is PostgreSQL specific, but we are using Postgres)
+        await conn.execute(text("ALTER TABLE submissions ADD COLUMN IF NOT EXISTS submission_text TEXT;"))
+        await conn.execute(text("ALTER TABLE submissions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"))
+        await conn.execute(text("ALTER TABLE submissions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"))
 
 
 async def close_db():

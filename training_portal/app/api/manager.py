@@ -4,8 +4,8 @@ from sqlalchemy.future import select
 from typing import List
 from uuid import UUID
 
-from app.database import get_db, Task, Submission, User, TaskStatusConstants, ReviewStatusConstants
-from app.schemas import SuccessResponse, TaskCreate, TaskAssign, SubmissionReview
+from app.database import get_db, Task, Submission, User, TaskStatusConstants, ReviewStatusConstants, AuditLog
+from app.schemas import SuccessResponse, TaskCreate, TaskAssign, SubmissionReview, TaskUpdate, TaskResponse
 
 from keycloak_auth import get_current_user, AuthenticatedUser
 from rbac_system import require_role
@@ -154,8 +154,73 @@ async def assign_task(
         raise HTTPException(status_code=400, detail="Task already assigned.")
         
     task.assigned_to = req.assigned_to
+    # If assigned, set status to IN_PROGRESS
+    task.status = TaskStatusConstants.IN_PROGRESS
+    
     await db.commit()
     return SuccessResponse(message="Task assigned successfully.")
+
+
+@router.put("/tasks/{task_id}", response_model=SuccessResponse)
+async def update_task(
+    task_id: UUID,
+    req: TaskUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(require_role("Manager"))
+):
+    """Update task details."""
+    # Resolve local ID
+    stmt = select(User.id).where(User.keycloak_id == current_user.user_id)
+    res = await db.execute(stmt)
+    local_id = res.scalar()
+
+    stmt = select(Task).where(Task.id == task_id, Task.created_by == local_id)
+    result = await db.execute(stmt)
+    task = result.scalars().first()
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not owned by you.")
+        
+    # Update fields
+    if req.name is not None: task.name = req.name
+    if req.description is not None: task.description = req.description
+    if req.priority is not None: task.priority = req.priority
+    if req.due_date is not None: task.due_date = req.due_date
+    if req.status is not None: task.status = req.status
+    
+    await db.commit()
+    return SuccessResponse(message="Task updated successfully.")
+
+
+@router.delete("/tasks/{task_id}", response_model=SuccessResponse)
+async def delete_task(
+    task_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(require_role("Manager"))
+):
+    """Delete a task and its submissions."""
+    # Resolve local ID
+    stmt = select(User.id).where(User.keycloak_id == current_user.user_id)
+    res = await db.execute(stmt)
+    local_id = res.scalar()
+
+    stmt = select(Task).where(Task.id == task_id, Task.created_by == local_id)
+    result = await db.execute(stmt)
+    task = result.scalars().first()
+    
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or not owned by you.")
+        
+    # Delete submissions first (or use cascade if configured, but let's be explicit)
+    sub_stmt = select(Submission).where(Submission.task_id == task_id)
+    sub_res = await db.execute(sub_stmt)
+    submissions = sub_res.scalars().all()
+    for sub in submissions:
+        await db.delete(sub)
+        
+    await db.delete(task)
+    await db.commit()
+    return SuccessResponse(message="Task and associated submissions deleted successfully.")
 
 
 @router.get("/submissions", response_model=SuccessResponse)
@@ -198,14 +263,14 @@ async def list_pending_submissions(
         sub_data["task_name"] = task_map.get(sub.task_id, "Unknown Task")
         sub_data["submitted_by_name"] = f"{ohr} - {fn or ''} {ln or ''}".strip() if ohr else f"{fn or ''} {ln or ''}".strip()
         # Fallback for frontend fields
-        sub_data["submission_text"] = sub.notes
+        sub_data["submission_text"] = sub.submission_text
         sub_data["created_at"] = sub.submitted_at
         data.append(sub_data)
         
     return SuccessResponse(data=data)
 
 
-@router.post("/submissions/{submission_id}/review", response_model=SuccessResponse)
+@router.put("/submissions/{submission_id}/review", response_model=SuccessResponse)
 async def review_submission(
     submission_id: UUID,
     req: SubmissionReview,
@@ -242,7 +307,7 @@ async def review_submission(
     
     submission.review_status = req.review_status
     submission.review_comments = req.review_comments
-    submission.reviewed_by = current_user.user_id
+    submission.reviewed_by = local_id
     
     await db.commit()
     return SuccessResponse(message=f"Submission {req.review_status.lower()} successfully.")

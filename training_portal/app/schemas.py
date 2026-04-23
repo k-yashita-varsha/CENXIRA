@@ -121,7 +121,7 @@ class SubmissionCreate(BaseModel):
 
 class SubmissionReview(BaseModel):
     """Review submission request."""
-    review_status: str = Field(..., pattern="^(APPROVED|REJECTED)$")
+    review_status: str = Field(..., pattern="^(APPROVED|REJECTED|NEEDS_REVISION)$")
     review_comments: Optional[str] = None
 
 

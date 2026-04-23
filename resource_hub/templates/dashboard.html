@@ -5,58 +5,44 @@
     {% if user %}
         <h1>Welcome, {{ user.name }}</h1>
         <p class="subtitle">
-            {% if user.role == 'Admin' %}
-            Admin Dashboard: Manage all tickets and company meetings.
+            {% if user.role == 'Manager' %}
+            Manager View — All upcoming meetings across the team.
             {% else %}
-            Manage your meetings and track your helpdesk requests.
+            Your meeting schedule and upcoming rooms.
             {% endif %}
         </p>
     {% else %}
-        <h1>Welcome to Resource Hub</h1>
-        <p class="subtitle">Please login via CENRIXA to manage your resources.</p>
+        <h1>CENRIXA Resource Hub</h1>
+        <p class="subtitle">An independent Meeting Scheduler for the CENRIXA ecosystem.</p>
+        <div style="margin-top: 2rem;">
+            <a href="/login" class="btn" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                🔐 Login via CENRIXA
+            </a>
+        </div>
     {% endif %}
 </div>
 
 {% if user %}
-<div class="grid-2">
-    <div class="glass-panel">
-        <h2>{% if user.role == 'Admin' %}Upcoming Company Meetings{% else %}Your Upcoming Meetings{% endif %}</h2>
-        {% if not meetings %}
-            <p class="subtitle">No upcoming meetings.</p>
-        {% else %}
+<div class="glass-panel">
+    <h2>{% if user.role == 'Manager' %}📅 All Upcoming Meetings{% else %}📅 Your Upcoming Meetings{% endif %}</h2>
+    {% if not meetings %}
+        <p class="subtitle" style="margin-top: 1rem;">No upcoming meetings.
+            <a href="/schedule" style="color: var(--accent);">Schedule one now →</a>
+        </p>
+    {% else %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
             {% for m in meetings %}
-            <div class="card" style="margin-bottom: 1rem;">
+            <div class="card">
                 <h3 style="margin-bottom: 0.5rem;">{{ m.title }}</h3>
-                <p style="color: var(--text-muted);">{{ m.datetime }}</p>
+                <p style="color: var(--text-muted);">🕐 {{ m.datetime }}</p>
                 {% if m.room_name %}
-                <span class="badge" style="margin-top: 0.5rem;">{{ m.room_name }}</span>
+                <span class="badge" style="margin-top: 0.5rem; display: inline-block;">📍 {{ m.room_name }}</span>
                 {% endif %}
             </div>
             {% endfor %}
-        {% endif %}
-        <a href="/schedule" class="btn" style="margin-top: 1rem; display: block;">Schedule New</a>
-    </div>
-
-    <div class="glass-panel">
-        <h2>{% if user.role == 'Admin' %}All Open Support Tickets{% else %}Your Open Tickets{% endif %}</h2>
-        {% if not tickets %}
-            <p class="subtitle">No open tickets.</p>
-        {% else %}
-            {% for t in tickets %}
-            <div class="card" style="margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between;">
-                    <h3 style="margin-bottom: 0;">{{ t.title }}</h3>
-                    <span class="badge" style="background: {% if t.status == 'Open' %}rgba(239, 68, 68, 0.2){% else %}rgba(34, 197, 94, 0.2){% endif %}; color: {% if t.status == 'Open' %}#fca5a5{% else %}#86efac{% endif %}">
-                        {{ t.status }}
-                    </span>
-                </div>
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% if user.role != 'Admin' %}
-        <a href="/helpdesk" class="btn" style="margin-top: 1rem; display: block;">Open Helpdesk Ticket</a>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
+    <a href="/schedule" class="btn" style="margin-top: 1.5rem; display: inline-block;">+ Schedule New Meeting</a>
 </div>
 {% endif %}
 {% endblock %}

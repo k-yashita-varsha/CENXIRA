@@ -6,7 +6,7 @@ DB_PATH = "resource_hub.db"
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,27 +39,14 @@ def init_db():
     )
     ''')
 
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS tickets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        status TEXT DEFAULT 'Open',
-        creator_id INTEGER,
-        assigned_to INTEGER,
-        FOREIGN KEY(creator_id) REFERENCES users(id),
-        FOREIGN KEY(assigned_to) REFERENCES users(id)
-    )
-    ''')
-
-    # Seed rooms (these remain static for the demo)
+    # Seed static rooms only — users come from Keycloak via DCR
     cursor.execute('SELECT COUNT(*) FROM rooms')
     if cursor.fetchone()[0] == 0:
-        cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Alpha Room', 10)")
-        cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Beta Room', 5)")
-        cursor.execute("INSERT INTO rooms (name, capacity) VALUES ('Gamma Presentation Hall', 50)")
-
-    # NOTE: Users are no longer seeded. They will be added dynamically when they log in via DCR/SSO.
+        cursor.executemany("INSERT INTO rooms (name, capacity) VALUES (?, ?)", [
+            ("Alpha Room", 10),
+            ("Beta Room", 5),
+            ("Gamma Presentation Hall", 50),
+        ])
 
     conn.commit()
     conn.close()
@@ -69,5 +56,4 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-# Initialize DB on import
 init_db()
